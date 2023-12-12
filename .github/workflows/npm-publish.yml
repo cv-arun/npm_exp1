@@ -63,7 +63,7 @@ jobs:
                 BUMP_TYPE="major"
             elif [ "$BUMP_TYPE" = "feat:" ]; then
                 BUMP_TYPE="minor"
-            elif [ "$BUMP_TYPE" = "" ]; then
+            elif [ "$BUMP_TYPE" = "fix:" ]; then
                 BUMP_TYPE="patch"
             fi
 
