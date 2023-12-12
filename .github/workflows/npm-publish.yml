@@ -54,9 +54,16 @@ jobs:
           cd ${{ matrix.package.path }}
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           if echo "$CHANGED_FILES" | grep -q "${{ matrix.package.name }}"; then
-           BUMP_TYPE=$(git log --pretty=format:%s ${{ github.event.before }}..${{ github.sha }} | grep -Ei '^(feat|feature|fix|chore|docs|style|refactor|test|build|release):' | \
-            grep -Ei '(feat|feature|minor|fix|release)' | \
-            awk '{print tolower($1)}' || echo "patch")
+            BUMP_TYPE=$(git log --pretty=format:%s ${{ github.event.before }}..${{ github.sha }} | \
+             grep -Ei '^(feat|feature|fix|chore|docs|style|refactor|test|build|release):' | \
+             grep -Ei '(feat|feature|minor|fix|release)' | \
+             awk '{print tolower($1)}')
+
+            if [ "$BUMP_TYPE" = "release" ]; then
+                BUMP_TYPE="major"
+            elif [ "$BUMP_TYPE" = "" ]; then
+                BUMP_TYPE="patch"
+            fi
 
             echo $BUMP_TYPE
             npm version $BUMP_TYPE
