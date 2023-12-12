@@ -39,14 +39,14 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Get current version
-        run: |
-          cd ${{ matrix.package.path }}
-          export CURRENT_VERSION=$(node -pe "require('./package.json').version")
-        id: version
+      # - name: Get current version
+      #   run: |
+      #     cd ${{ matrix.package.path }}
+      #     export CURRENT_VERSION=$(node -pe "require('./package.json').version")
+      #   id: version
 
-      - name: Echo New Version
-        run: echo "New version is ${{ env.CURRENT_VERSION }}"
+      # - name: Echo New Version
+      #   run: echo "New version is ${{ env.CURRENT_VERSION }}"
 
 
       - name: Publish package if changes
