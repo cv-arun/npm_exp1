@@ -57,7 +57,8 @@ jobs:
             BUMP_TYPE=$(git log --pretty=format:%s ${{ github.event.before }}..${{ github.sha }} | grep -Ei '^(feat|feature|fix|chore|docs|style|refactor|test|build):' | \
               grep -Ei '(feat|feature|minor|fix)' | \
               awk '{print "minor"}' || echo "patch")
-
+              
+            echo $BUMP_TYPE
             npm version $BUMP_TYPE
 
             export NEW_VERSION=$(node -pe "require('./package.json').version")
