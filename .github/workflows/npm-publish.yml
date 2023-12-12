@@ -59,9 +59,11 @@ jobs:
               awk '{print "minor"}' || echo "patch")
 
             npm version $BUMP_TYPE
-            
+
             export NEW_VERSION=$(node -pe "require('./package.json').version")
             echo "Publishing version $NEW_VERSION"
+
+            npm publish
            
 
             echo "Updating local package.json"
