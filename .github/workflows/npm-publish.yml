@@ -54,16 +54,16 @@ jobs:
           cd ${{ matrix.package.path }}
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           if echo "$CHANGED_FILES" | grep -q "${{ matrix.package.name }}"; then
-            npm version patch
-            export NEW_VERSION=$(node -pe "require('./package.json').version")
-            echo "Publishing version $NEW_VERSION"
-           
             BUMP_TYPE=$(git log --pretty=format:%s ${{ github.event.before }}..${{ github.sha }} | grep -Ei '^(feat|feature|fix|chore|docs|style|refactor|test|build):' | \
               grep -Ei '(feat|feature|minor|fix)' | \
               awk '{print "minor"}' || echo "patch")
 
             npm version $BUMP_TYPE
             
+            export NEW_VERSION=$(node -pe "require('./package.json').version")
+            echo "Publishing version $NEW_VERSION"
+           
+
             echo "Updating local package.json"
             git checkout main
             git branch -a
