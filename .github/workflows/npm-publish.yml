@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     branches:
-      - main
+      - feature
     paths:
       - 'packages/is-even-by-cv/**'
       - 'packages/is-odd-by-cv/**'
@@ -15,10 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - name: is-even-by-cv
-            path: packages/is-even-by-cv
-          - name: is-odd-by-cv
-            path: packages/is-odd-by-cv
+          - packages/is-even-by-cv
+          - packages/is-odd-by-cv
             
     steps:
       - name: Check out repository
@@ -34,36 +32,43 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: 'Automated Version Bump'  
-        uses: 'qubetools/qubetools-gh-action-semantic-version-tag-bump@v1.0.0'
-        id: version-bump  
-        env: 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
-          PACKAGEJSON_DIR: ${{ matrix.package.path }}
-        with:
-          major-wording: 'major,Major,breaking,Breaking'   
-          minor-wording: 'minor,Minor,new,New,feat,Feat,feature,Feature,release,Release'
-          patch-wording: 'fix,Fix,fixes,Fixes,patch,Patch' 
-          rc-wording: 'rc,pre'  
-          hours-to-go-back: 24 
-          skip-if-no-commits: 'true' 
-          tag-prefix: 'v'   
-          commit-message: 'CI: bumps version to {{version}} [skip ci]' 
-          bump-policy: 'last-commit'  
+        
+      - name: Check modified files
+        run: |
+          # Get the list of modified files
+          MODIFIED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+          # Check if any of the modified files are in the folder
+          if echo "$MODIFIED_FILES" | grep -q "packages/is-even-by-cv/**"; then
+            # Bump the version of the package.json file in the app folder
+            cd packages/is-even-by-cv
+            npm version patch -m "Bump the version to %s"
+            # Push the changes back to the repository
+            # git push origin ${{ github.ref }}
+          fi
+      # - name: Automated Version Bump
+      #   uses: phips28/gh-action-bump-version@master
+      #   env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #      # specify the folder where package.json is located
+      #      folder: packages/is-even-by-cv
+      #      # specify the wording for minor version bump
+      #      minor-wording: 'feat,minor'
+      #      # specify the wording for major version bump
+      #      major-wording: 'BREAKING,major'  
 
       - name: Authenticate with npm
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Get current version
-        run: |
-          cd ${{ matrix.package.path }}
-          export CURRENT_VERSION=$(node -pe "require('./package.json').version")
-        id: version
+      # - name: Get current version
+      #   run: |
+      #     cd ${{ matrix.package.path }}
+      #     export CURRENT_VERSION=$(node -pe "require('./packages/is-even-by-cv/package.json').version")
+      #   id: version
 
-      - name: Echo New Version
-        run: echo "New version is ${{ env.CURRENT_VERSION }}"
+      # - name: Echo New Version
+      #   run: echo "New version is ${{ env.CURRENT_VERSION }}"
 
 
       - name: Publish package if changes
@@ -71,9 +76,9 @@ jobs:
           cd ${{ matrix.package.path }}
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           if echo "$CHANGED_FILES" | grep -q "${{ matrix.package.name }}"; then
-            npm version patch
-            export NEW_VERSION=$(node -pe "require('./package.json').version")
-            echo "Publishing version $NEW_VERSION"
+          #   npm version patch
+          #   export NEW_VERSION=$(node -pe "require('./package.json').version")
+          #   echo "Publishing version $NEW_VERSION"
             npm publish
             echo "Updating local package.json"
             git config --local user.email "cvaruncv1998@gmail.com"
@@ -86,6 +91,7 @@ jobs:
           fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
 
 
 
