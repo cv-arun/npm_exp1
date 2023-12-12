@@ -59,8 +59,10 @@ jobs:
              grep -Ei '(feat|feature|minor|fix|release)' | \
              awk '{print tolower($1)}')
 
-            if [ "$BUMP_TYPE" = "release" ]; then
+            if [ "$BUMP_TYPE" = "release:" ]; then
                 BUMP_TYPE="major"
+            elif [ "$BUMP_TYPE" = "feat:" ]; then
+                BUMP_TYPE="minor"
             elif [ "$BUMP_TYPE" = "" ]; then
                 BUMP_TYPE="patch"
             fi
