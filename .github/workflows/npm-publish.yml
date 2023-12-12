@@ -59,11 +59,12 @@ jobs:
             echo "Publishing version $NEW_VERSION"
             npm publish
             echo "Updating local package.json"
+            git branch -a
             git config --local user.email "cvaruncv1998@gmail.com"
             git config --local user.name "cv-arun"
             git add package.json
             git commit -m "Bump version to $NEW_VERSION"
-             git push -u origin main
+            git push -u origin main
           else
             echo "No changes in ${{ matrix.package.name }}, skipping publish."
           fi
